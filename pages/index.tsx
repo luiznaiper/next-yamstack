@@ -1,9 +1,38 @@
+import { useEffect } from 'react'
 import { Grid } from '@ui/Grid'
 import { Button } from '@ui/Button'
 import { Typography } from '@ui/Typography'
 import { Layout } from '@components/Layout'
+import { getPlantList } from '@api'
+
+const fetchPlants = () =>
+  fetch('https://graphql.contentful.com/content/v1/spaces/mpshg03djz02/', {
+    method: 'POST',
+    headers: {
+      'Content-type': 'application/json',
+      Authorization: 'Bearer w1alkUPHr-3hqnJXAN6bwClkV-b2uvc-5ddt9ZinTUU',
+    },
+    body: JSON.stringify({
+      query: `{
+      plantCollection(limit:10){
+        total
+        limit
+        items{
+          plantName
+        }
+      }
+    }`,
+    }),
+  })
 
 export default function Home() {
+  useEffect(() => {
+    getPlantList({ limit: 10 }).then((data) => {
+      data.forEach((item) => {
+        console.log(item.author.fullName)
+      })
+    })
+  }, [])
   return (
     <Layout>
       <Typography variant="h2" className="text-center">
@@ -12,7 +41,7 @@ export default function Home() {
       <div className="max-w-5xl mx-auto my-10">
         <Grid component="ul" container spacing={2}>
           {documentationList.map((doc) => (
-            <Grid component="li" item className="" xs={6}>
+            <Grid component="li" item className="" xs={6} key={doc.title}>
               <a
                 href={doc.link}
                 target="_blank"
