@@ -1,17 +1,22 @@
-import { useEffect } from 'react'
-import { Grid } from '@ui/Grid'
-import { Button } from '@ui/Button'
-import { Typography } from '@ui/Typography'
+import { useState, useEffect } from 'react'
+// import { Grid } from '@ui/Grid'
+// import { Button } from '@ui/Button'
+// import { Typography } from '@ui/Typography'
 import { Layout } from '@components/Layout'
+import { PlantCollection } from '@components/PlantCollection'
 import { getPlantList } from '@api'
 
 export default function Home() {
+  const [data, setData] = useState<Plant[]>([])
   useEffect(() => {
-    getPlantList({ limit: 10 }).then((data) => {
-      data.forEach((item) => {
-        console.log(item.author.fullName)
-      })
-    })
+    getPlantList({ limit: 10 }).then((reveivedData) => setData(reveivedData))
   }, [])
-  return <Layout>Hola</Layout>
+
+  console.log(data)
+
+  return (
+    <Layout>
+      <PlantCollection plants={data} variant="square" />
+    </Layout>
+  )
 }
