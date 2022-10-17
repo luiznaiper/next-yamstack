@@ -1,22 +1,37 @@
-import { useState, useEffect } from 'react'
-// import { Grid } from '@ui/Grid'
-// import { Button } from '@ui/Button'
-// import { Typography } from '@ui/Typography'
-import { Layout } from '@components/Layout'
-import { PlantCollection } from '@components/PlantCollection'
+import { GetStaticProps, InferGetStaticPropsType } from 'next'
 import { getPlantList } from '@api'
+import { Layout } from '@components/Layout'
+import { Hero } from '@components/Hero'
+import { Authors } from '@components/Authors'
+import { PlantCollection } from '@components/PlantCollection'
 
-export default function Home() {
-  const [data, setData] = useState<Plant[]>([])
-  useEffect(() => {
-    getPlantList({ limit: 10 }).then((reveivedData) => setData(reveivedData))
-  }, [])
+type HomeProps = { plants: Plant[] }
 
-  console.log(data)
+export const getStaticProps: GetStaticProps<HomeProps> = async () => {
+  const plants = await getPlantList({ limit: 10 })
+  return {
+    props: {
+      plants,
+    },
+  }
+}
 
+export default function Home({
+  plants,
+}: InferGetStaticPropsType<typeof getStaticProps>) {
   return (
     <Layout>
-      <PlantCollection plants={data} variant="square" />
+      <Hero {...plants[0]} className="mb-10" />
+      <Authors className="mb-10" />
+      <PlantCollection
+        plants={plants.slice(1, 3)}
+        variant="vertical"
+        className="mb-24"
+      />
+      <PlantCollection
+        plants={plants.length > 8 ? plants.slice(3, 9) : plants}
+        variant="square"
+      />
     </Layout>
   )
 }
