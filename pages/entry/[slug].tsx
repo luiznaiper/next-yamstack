@@ -1,7 +1,6 @@
 import { GetStaticProps, InferGetStaticPropsType } from 'next'
 import Error from 'next/error'
 import Link from 'next/link'
-
 import { getPlant, getPlantList, getCategoryList } from '@api/index'
 import { Typography } from '@ui/Typography'
 import { Grid } from '@ui/Grid'
@@ -33,7 +32,7 @@ export const getStaticPaths = async () => {
 
   return {
     paths,
-    fallback: false,
+    fallback: 'blocking',
   }
 }
 
@@ -65,6 +64,7 @@ export const getStaticProps: GetStaticProps<PlantEntryProps> = async ({
         otherEntries,
         categories,
       },
+      revalidate: 5 * 60,
     }
   } catch (e) {
     return {
