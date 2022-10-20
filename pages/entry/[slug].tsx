@@ -10,7 +10,6 @@ import { AuthorCard } from '@components/AuthorCard'
 import { PlantEntryInline } from '@components/PlantCollection'
 import { Image } from '@components/Image'
 
-
 type PlantEntryProps = {
   plant: Plant | null
   otherEntries: Plant[] | null
@@ -40,6 +39,7 @@ export const getStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps<PlantEntryProps> = async ({
   params,
+  preview,
 }) => {
   const slug = params?.slug
 
@@ -50,7 +50,7 @@ export const getStaticProps: GetStaticProps<PlantEntryProps> = async ({
   }
 
   try {
-    const plant = await getPlant(slug)
+    const plant = await getPlant(slug, preview)
 
     const otherEntries = await getPlantList({
       limit: 5,
@@ -92,11 +92,13 @@ export default function PlantEntryPage({
       <Grid container spacing={4}>
         <Grid item xs={12} md={8} lg={9} component="article">
           <figure>
-            <Image width={952}
+            <Image
+              width={952}
               aspectRatio="4:3"
               layout="intrinsic"
               src={plant.image.url}
-              alt={plant.image.title}/>
+              alt={plant.image.title}
+            />
           </figure>
           <div className="px-12 pt-8">
             <Typography variant="h2">{plant.plantName}</Typography>
