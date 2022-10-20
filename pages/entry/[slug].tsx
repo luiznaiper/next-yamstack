@@ -8,6 +8,8 @@ import { Layout } from '@components/Layout'
 import { RichText } from '@components/RichText'
 import { AuthorCard } from '@components/AuthorCard'
 import { PlantEntryInline } from '@components/PlantCollection'
+import { Image } from '@components/Image'
+
 
 type PlantEntryProps = {
   plant: Plant | null
@@ -90,7 +92,11 @@ export default function PlantEntryPage({
       <Grid container spacing={4}>
         <Grid item xs={12} md={8} lg={9} component="article">
           <figure>
-            <img width={592} src={plant.image.url} alt={plant.image.title} />
+            <Image width={952}
+              aspectRatio="4:3"
+              layout="intrinsic"
+              src={plant.image.url}
+              alt={plant.image.title}/>
           </figure>
           <div className="px-12 pt-8">
             <Typography variant="h2">{plant.plantName}</Typography>

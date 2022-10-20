@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Grid, GridProps } from '@ui/Grid'
 import { Typography } from '@ui/Typography'
 import { Button } from '@ui/Button'
-import Image from './Image'
+import { Image } from '@components/Image'
 
 import { Excerpt } from '@components/Excerpt'
 
@@ -84,7 +84,15 @@ export function PlantEntryInline({
         <div
           className={`opacity-95 hover:opacity-100 flex items-end ${className}`}
         >
-          <img src={image.url} width={84} className="flex-none" />
+          <div className="flex-none">
+            <Image
+              src={image.url}
+              width={84}
+              aspectRatio="1:1"
+              fit="fill"
+              layout="fixed"
+            />
+          </div>
           <div className="pl-2 flex-auto">
             <Typography variant="h6" className="break-words">
               {plantName}
@@ -106,7 +114,12 @@ export function PlantEntryVertical({
     <div className="opacity-95 hover:opacity-100">
       <Link href={`/entry/${slug}`}>
         <a title={`Go to ${plantName}`}>
-          <img src={image.url} width={624} />
+          <Image
+            src={image.url}
+            width={624}
+            layout="intrinsic"
+            aspectRatio="9:12"
+          />
           <Typography variant="h2" className="break-words pt-4 px-4">
             {plantName}
           </Typography>
