@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { useRouter } from 'next/dist/client/router'
 import { getAuthorList, getPlantListByAuthor, QueryStatus } from '@api'
 import { IGetPlantListByAuthorQueryVariables } from '@api/generated/graphql'
 import { Typography } from '@ui/Typography'
@@ -57,12 +58,16 @@ export const getServerSideProps: GetServerSideProps<TopStoriesPageProps> =
 
 export default function TopStories({
   authors,
-  currentAuthor,
   status,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const [currentTab, setCurrentTab] = useState(currentAuthor)
+  const router = useRouter()
+  const currentAuthor = router.query.author
 
-  if (authors.length === 0 || status === 'error') {
+  if (
+    typeof currentAuthor !== 'string' ||
+    authors.length === 0 ||
+    status === 'error'
+  ) {
     return (
       <Layout>
         <main className="pt-10 px-6">
@@ -95,8 +100,12 @@ export default function TopStories({
         </div>
         <VerticalTabs
           tabs={tabs}
-          currentTab={currentTab}
-          onTabChange={(_, newValue) => setCurrentTab(newValue)}
+          currentTab={currentAuthor}
+          onTabChange={(_, newValue) => {
+            router.push(`/top-stories/${newValue}`, undefined, {
+              shallow: true,
+            })
+          }}
         />
       </main>
     </Layout>
