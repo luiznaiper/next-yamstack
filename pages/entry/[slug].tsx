@@ -1,5 +1,5 @@
-import { GetStaticProps, InferGetStaticPropsType } from 'next'
-import Error from 'next/error'
+import flatMap from 'lodash/flatMap'
+import { GetStaticProps, InferGetStaticPropsType, GetStaticPaths } from 'next'
 import Link from 'next/link'
 import { getPlant, getPlantList, getCategoryList } from '@api/index'
 import { Typography } from '@ui/Typography'
@@ -10,36 +10,16 @@ import { AuthorCard } from '@components/AuthorCard'
 import { PlantEntryInline } from '@components/PlantCollection'
 import { Image } from '@components/Image'
 
-type PlantEntryProps = {
-  plant: Plant | null
-  otherEntries: Plant[] | null
-  categories: Category[] | null
+type PlantEntryPageProps = {
+  plant: Plant
+  otherEntries: Plant[]
+  categories: Category[]
 }
 
-type PathType = {
-  params: {
-    slug: string
-  }
-}
-
-export const getStaticPaths = async () => {
-  const entries = await getPlantList({ limit: 10 })
-
-  const paths: PathType[] = entries.map((plant) => ({
-    params: {
-      slug: plant.slug,
-    },
-  }))
-
-  return {
-    paths,
-    fallback: 'blocking',
-  }
-}
-
-export const getStaticProps: GetStaticProps<PlantEntryProps> = async ({
+export const getStaticProps: GetStaticProps<PlantEntryPageProps> = async ({
   params,
   preview,
+  locale,
 }) => {
   const slug = params?.slug
 
@@ -50,7 +30,7 @@ export const getStaticProps: GetStaticProps<PlantEntryProps> = async ({
   }
 
   try {
-    const plant = await getPlant(slug, preview)
+    const plant = await getPlant(slug, preview, locale)
 
     const otherEntries = await getPlantList({
       limit: 5,
@@ -75,6 +55,36 @@ export const getStaticProps: GetStaticProps<PlantEntryProps> = async ({
   }
 }
 
+type PathType = {
+  params: {
+    slug: string
+  }
+  locale: string
+}
+
+export const getStaticPaths: GetStaticPaths = async ({ locales }) => {
+  if (locales == undefined) {
+    throw new Error(
+      'Uh, did you forget to configure locales in your Next.js config?'
+    )
+  }
+  const plantEntriesToGenerate = await getPlantList({ limit: 10 })
+
+  const paths: PathType[] = flatMap(
+    plantEntriesToGenerate.map(({ slug }) => ({
+      params: {
+        slug,
+      },
+    })),
+    (path) => locales.map((loc) => ({ locale: loc, ...path }))
+  )
+
+  return {
+    paths,
+    fallback: 'blocking',
+  }
+}
+
 export default function PlantEntryPage({
   plant,
   otherEntries,
@@ -83,7 +93,7 @@ export default function PlantEntryPage({
   if (plant == null) {
     return (
       <Layout>
-        <Error statusCode={404} />
+        <p>404</p>
       </Layout>
     )
   }
