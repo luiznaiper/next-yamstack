@@ -1,4 +1,5 @@
 import { GetStaticProps, InferGetStaticPropsType } from 'next'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { getPlantList } from '@api'
 import { Layout } from '@components/Layout'
 import { Hero } from '@components/Hero'
@@ -9,11 +10,10 @@ type HomeProps = { plants: Plant[] }
 
 export const getStaticProps: GetStaticProps<HomeProps> = async ({ locale }) => {
   const plants = await getPlantList({ limit: 10, locale })
+  const i18nConf = await serverSideTranslations(locale!)
   return {
-    props: {
-      plants,
-      revalidate: 5 * 60,
-    },
+    props: { plants, ...i18nConf },
+    revalidate: 5 * 60,
   }
 }
 
