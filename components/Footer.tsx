@@ -51,14 +51,14 @@ export const Footer = ({ className }: { className?: string }) => {
             </p>
             <div className="mt-3">
               <a
-                href="https://twitter.com/jonalvarezz"
-                title="Follow @jonalvarezz on Twitter"
+                href="https://twitter.com/luiznaiper"
+                title="Follow @luiznaiper on Twitter"
                 className="pr-4"
               >
                 TW
               </a>
               <a
-                href="https://github.com/jonalvarezz"
+                href="https://github.com/luiznaiper"
                 title="Open this project on GitHub"
               >
                 GH

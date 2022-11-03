@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
-import { useRouter } from 'next/dist/client/router'
+import { useTranslation } from 'next-i18next'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { getAuthorList, getPlantListByAuthor, QueryStatus } from '@api'
 import { IGetPlantListByAuthorQueryVariables } from '@api/generated/graphql'
 import { Typography } from '@ui/Typography'
@@ -13,12 +15,10 @@ import ErrorPage from '../_error'
 
 type TopStoriesPageProps = {
   authors: Author[]
-  currentAuthor: Author['handle']
-  status: 'error' | 'sucess'
 }
 
 export const getServerSideProps: GetServerSideProps<TopStoriesPageProps> =
-  async ({ params }) => {
+  async ({ locale, params }) => {
     const authorHandle = String(params?.author)
 
     try {
@@ -42,34 +42,25 @@ export const getServerSideProps: GetServerSideProps<TopStoriesPageProps> =
       return {
         props: {
           authors,
-          currentAuthor: authorHandle,
-          status: 'sucess',
+          ...(await serverSideTranslations(locale!)),
         },
       }
     } catch (e) {
       return {
-        props: {
-          authors: [],
-          currentAuthor: authorHandle,
-          status: 'error',
-        },
+        notFound: true,
       }
     }
   }
 
 export default function TopStories({
   authors,
-  status,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const { t } = useTranslation(['page-top-stories'])
   const router = useRouter()
   const currentAuthor = router.query.author
 
-  if (
-    typeof currentAuthor !== 'string' ||
-    authors.length === 0 ||
-    status === 'error'
-  ) {
-    return <ErrorPage message="Huh, something went wrong" />
+  if (typeof currentAuthor !== 'string' || authors.length === 0) {
+    return <ErrorPage message={t('noInfoAvailable')} />
   }
 
   const tabs: TabItem[] = authors.map((author) => ({
@@ -81,9 +72,9 @@ export default function TopStories({
   return (
     <Layout>
       <main className="pt-10">
-        <div className="text-center pb-16">
-          <Typography variant="h2">Top 10 Stories</Typography>
-        </div>
+        <Typography variant="h2" className="text-center pb-16">
+          {t('top10Stories')}
+        </Typography>
         <VerticalTabs
           tabs={tabs}
           currentTab={currentAuthor}
@@ -101,6 +92,7 @@ export default function TopStories({
 type AuthorTopStoriesProps = Author
 
 function AuthorTopStories(author: AuthorTopStoriesProps) {
+  const { t } = useTranslation(['page-top-stories'])
   const { data: plants, status } = usePlantListByAuthor({
     authorId: author.id,
     limit: 12,
@@ -112,11 +104,11 @@ function AuthorTopStories(author: AuthorTopStoriesProps) {
         <AuthorCard {...author} />
       </section>
       {status === 'error' ? (
-        <Alert severity="error">Huh. Something went wrong.</Alert>
+        <Alert severity="error">{t('somethingWentWrong')}</Alert>
       ) : null}
       {status === 'success' && plants.length === 0 ? (
         <Alert severity="info">
-          {author.fullName} doesn't have any story yet.
+          {t('authorHasNoStories', { name: author.fullName })}{' '}
         </Alert>
       ) : null}
       <PlantCollection plants={plants} />
