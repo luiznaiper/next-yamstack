@@ -24,13 +24,15 @@ export default function Search() {
   const [status, setStatus] = useState<QueryStatus>('idle')
   const [results, setResults] = useState<Plant[]>([])
 
+  const searchTerm = useDebounce(term, 500)
+
   const updateTerm: ChangeEventHandler<HTMLInputElement> = (event) =>
     setTerm(event.currentTarget.value)
 
   const emptyResults = status === 'success' && results.length === 0
 
   useEffect(() => {
-    if (term.trim().length < 3) {
+    if (searchTerm.trim().length < 1) {
       setStatus('idle')
       setResults([])
       return
@@ -40,13 +42,13 @@ export default function Search() {
 
     // Pagination not supported... yet
     searchPlants({
-      term,
+      term: searchTerm,
       limit: 10,
     }).then((data) => {
       setResults(data)
       setStatus('success')
     })
-  }, [term])
+  }, [searchTerm])
 
   return (
     <Layout>
@@ -80,4 +82,19 @@ export default function Search() {
       </main>
     </Layout>
   )
+}
+
+function useDebounce<T>(value: T, wait = 0) {
+  const [debouncedValue, setDebouncedValue] = useState(value)
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setDebouncedValue(value)
+    }, wait)
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [value])
+
+  return debouncedValue
 }
