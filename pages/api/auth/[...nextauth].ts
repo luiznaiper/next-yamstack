@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth'
 import type { NextAuthOptions } from 'next-auth'
 import Providers from 'next-auth/providers'
+import { providers } from 'next-auth/client'
 
 const options: NextAuthOptions = {
   theme: 'light',
@@ -30,6 +31,10 @@ const options: NextAuthOptions = {
         }
         return null
       },
+    }),
+    Providers.GitHub({
+      clientId: process.env.AUTH_GITHUB_ID,
+      clientSecret: process.env.AUTH_GITHUB_SECRET,
     }),
   ],
 }
