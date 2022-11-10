@@ -10,7 +10,7 @@ const credentialsAuth: NextApiHandler<User> = (request, response) => {
     const naiperUser: User = {
       name: 'Luiznaiper',
       email: 'luis@luis.com',
-      image: '',
+      image: 'naiper.png',
     }
     return response.status(200).json(naiperUser)
   }
